@@ -24,29 +24,42 @@ def montar_dataframes(nome_arquivo):
 
 
 data_frames = montar_dataframes('20_10_noite_tratado.json')
+print(data_frames['E_f1'])
 
-print(data_frames)
+def montar_grafico_contagem_pa():
+    count_dict = {}
+    for key in data_frames:
+        count_dict[key] = data_frames[key]['PA'].count() 
 
-# df = pd.DataFrame(dados['AB']['terreo'])
+    count_df = pd.DataFrame(list(count_dict.items()), columns=['Bloco/Andar', 'Contagem de PA'])
 
-# print(df.count())
+    fig = px.bar(count_df, x='Bloco/Andar', y='Contagem de PA', title='Número de pontos de acesso por Bloco/Andar')
 
-# fig = px.bar()
+    return fig
 
-# # fig0 = px.bar(df_andares[0], x="Ponto de Acesso", y="Sinal", color='Qualidade', color_discrete_map={
-# #     'Boa': '#00CC96',
-# #     'Média': '#FECB52',
-# #     'Ruim': '#EF553B'
-# # })
+def montar_grafico_media_pa():
+    count_dict = {}
+    for key in data_frames:
+        sinal_df = pd.to_numeric(data_frames[key]['Sinal'])
+        count_dict[key] = sinal_df.mean() 
 
-# app = Dash(__name__)
-# app.layout = html.Div(children=[
-#     dcc.Graph(
-#         id='grafico-pa-bloco-e-t',
-#         figure=fig,
-#         style={'width': '500px'}
-#     ),
-# ])
+    count_df = pd.DataFrame(list(count_dict.items()), columns=['Bloco/Andar', 'Média sinal'])
+    
+    
+    fig = px.bar(count_df, x='Média sinal', y='Bloco/Andar', title='Media do sinal por Bloco/Andar', color='Bloco/Andar')
 
-# if __name__ == '__main__':
-#     app.run(debug=True)
+    return fig
+
+fig = montar_grafico_media_pa()
+
+app = Dash(__name__)
+app.layout = html.Div(children=[
+    dcc.Graph(
+        id='grafico-pa-bloco-e-t',
+        figure=fig,
+        style={'width': '500px'}
+    ),
+])
+
+if __name__ == '__main__':
+    app.run(debug=True)
